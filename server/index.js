@@ -7,7 +7,7 @@ const cors = require('cors')
 const db = mysql.createPool(
     {
         host: 'localhost',
-      
+
     }
 )
 
@@ -36,7 +36,16 @@ app.post("/api/insert", (req, res) => {
     const reportingLineManager = req.body.employeeReportingLineManager;
 
     db.query(sqlInsert, [employeeName, employeeSurname, BirthDate, employeeNumber, employeeSalary, employeeRole, reportingLineManager], (err, result) => {
-        console.log(err);
+        console.log(result);
+    })
+})
+
+app.get("/api/get", (req, res) => {
+    const sqlSelect = "SELECT * FROM Employee_Data;"
+
+
+    db.query(sqlSelect, (err, result) => {
+        res.send(result)
     })
 })
 

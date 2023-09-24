@@ -13,6 +13,17 @@ function App() {
     employeeReportingLineManager: '',
   });
 
+  const [loadAllEmployeeData, setLoadAllEmployeeData] = useState([]);
+
+  useEffect(() => {
+
+    Axios.get('http://localhost:3001/api/get').then((response) => {
+      setLoadAllEmployeeData(response.data);
+      console.log(response.data)
+    })
+  }, []
+  )
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEmployeeData((prevData) => ({
@@ -95,6 +106,12 @@ function App() {
         />
 
         <button onClick={handleSubmit}>Submit</button>
+
+        {
+          loadAllEmployeeData.map((val, index) => {
+            return <h1 key={index}>Employee Name: {val.Name}</h1>;
+          })
+        }
       </div>
     </div>
   );
