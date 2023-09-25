@@ -49,6 +49,19 @@ app.get("/api/get", (req, res) => {
     })
 })
 
+app.delete("/api/delete/:employeeNumber", (req, res) => {
+    const employeeID = req.params.employeeNumber;
+
+    const sqlDelete = "DELETE FROM Employee_Data WHERE EmployeeNumber = ?";
+
+    db.query(sqlDelete, employeeID, (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+
+    });
+})
+
 app.listen(3001, () => {
     console.log('running on port 3001');
 })
