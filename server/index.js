@@ -62,6 +62,53 @@ app.delete("/api/delete/:employeeNumber", (req, res) => {
     });
 })
 
+app.put("/api/update", (req, res) => {
+    const {
+        employeeName,
+        employeeSurname,
+        employeeBirthDate,
+        employeeNumber,
+        employeeSalary,
+        employeeRole,
+        employeeReportingLineManager,
+    } = req.body;
+
+    const sqlUpdate = `
+          UPDATE Employee_Data
+          SET
+              Name = ?,
+              Surname = ?,
+              BirthDate = ?,
+              Salary = ?,
+              Role = ?,
+              ReportingLineManager = ?
+          WHERE EmployeeNumber = ?;
+      `;
+
+    db.query(
+        sqlUpdate,
+        [
+            employeeName,
+            employeeSurname,
+            employeeBirthDate,
+            employeeSalary,
+            employeeRole,
+            employeeReportingLineManager,
+            employeeNumber,
+        ],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.send(result);
+            }
+        }
+    );
+});
+
+
+
+
 app.listen(3001, () => {
     console.log('running on port 3001');
 })

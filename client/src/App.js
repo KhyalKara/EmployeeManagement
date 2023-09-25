@@ -24,6 +24,11 @@ function App() {
   const [loadAllEmployeeData, setLoadAllEmployeeData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isEditing, setIsEditing] = useState(false); // Track if a row is being edited
+  const [editedEmployee, setEditedEmployee] = useState({}); // Track the edited employee data
+
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,16 +54,55 @@ function App() {
       });
   };
 
-  const handleEdit = (index) => {
-    // Implement the edit functionality here
-    console.log(`Editing row ${index}`);
+  const handleEdit = (employee, index) => {
+    // Initialize editedEmployee with the values from the selected employee
+    setEditedEmployee({ ...employee });
+
+    // Set edit mode for the specified index
+    setIsEditing(index);
   };
+
 
   const handleDelete = (employeeNumber) => {
     Axios.delete(`http://localhost:3001/api/delete/${employeeNumber}`, employeeNumber);
     // Implement the delete functionality here
 
   };
+
+  const handleCancel = () => {
+    setEditedEmployee({});
+    setIsEditing(false);
+  };
+
+  const handleSave = (index) => {
+    console.log(editedEmployee.EmployeeNumber);
+    Axios.put('http://localhost:3001/api/update/', {
+      employeeName: editedEmployee.Name,
+      employeeSurname: editedEmployee.Surname,
+      employeeBirthDate: editedEmployee.BirthDate,
+      employeeNumber: editedEmployee.EmployeeNumber,
+      employeeSalary: editedEmployee.Salary,
+      employeeRole: editedEmployee.Role,
+      employeeReportingLineManager: editedEmployee.ReportingLineManager,
+    })
+      .then((response) => {
+        // Handle the response if needed
+        console.log(response);
+        setIsEditing(false); // Disable editing mode
+        // Update the local state with the edited employee data
+        setLoadAllEmployeeData((prevData) => {
+          const updatedData = [...prevData];
+          updatedData[index] = editedEmployee;
+          return updatedData;
+        });
+      })
+      .catch((error) => {
+        // Handle errors if the request fails
+        console.error(error);
+      });
+  };
+
+
 
 
   return (
@@ -155,18 +199,94 @@ function App() {
           <tbody>
             {loadAllEmployeeData.map((employee, index) => (
               <tr key={index}>
-                <td>{employee.Name}</td>
-                <td>{employee.Surname}</td>
-                <td>{employee.BirthDate}</td>
-                <td>{employee.EmployeeNumber}</td>
-                <td>{employee.Salary}</td>
-                <td>{employee.Role}</td>
-                <td>{employee.ReportingLineManager}</td>
                 <td>
-                  <button onClick={() => handleEdit(index)}>Edit</button>
+                  {isEditing === index ? (
+                    <input
+                      type="text"
+                      name="employeeName"
+                      value={editedEmployee.Name}
+                      onChange={(e) => setEditedEmployee({ ...editedEmployee, Name: e.target.value })}
+                    />
+                  ) : (
+                    employee.Name
+                  )}
                 </td>
                 <td>
-                  <button onClick={() => handleDelete(employee.EmployeeNumber)}>Delete</button>
+                  {isEditing === index ? (
+                    <input
+                      type="text"
+                      name="employeeSurname"
+                      value={editedEmployee.Surname}
+                      onChange={(e) => setEditedEmployee({ ...editedEmployee, Surname: e.target.value })}
+                    />
+                  ) : (
+                    employee.Surname
+                  )}
+                </td>
+                <td>
+                  {isEditing === index ? (
+                    <input
+                      type="text"
+                      name="employeeBirthDate"
+                      value={editedEmployee.BirthDate}
+                      onChange={(e) => setEditedEmployee({ ...editedEmployee, BirthDate: e.target.value })}
+                    />
+                  ) : (
+                    employee.BirthDate
+                  )}
+                </td>
+                <td>{employee.EmployeeNumber}</td>
+                <td>
+                  {isEditing === index ? (
+                    <input
+                      type="text"
+                      name="employeeSalary"
+                      value={editedEmployee.Salary}
+                      onChange={(e) => setEditedEmployee({ ...editedEmployee, Salary: e.target.value })}
+                    />
+                  ) : (
+                    employee.Salary
+                  )}
+                </td>
+                <td>
+                  {isEditing === index ? (
+                    <input
+                      type="text"
+                      name="employeeRole"
+                      value={editedEmployee.Role}
+                      onChange={(e) => setEditedEmployee({ ...editedEmployee, Role: e.target.value })}
+                    />
+                  ) : (
+                    employee.Role
+                  )}
+                </td>
+                <td>
+                  {isEditing === index ? (
+                    <input
+                      type="text"
+                      name="employeeReportingLineManager"
+                      value={editedEmployee.ReportingLineManager}
+                      onChange={(e) =>
+                        setEditedEmployee({ ...editedEmployee, ReportingLineManager: e.target.value })
+                      }
+                    />
+                  ) : (
+                    employee.ReportingLineManager
+                  )}
+                </td>
+                <td>
+                  {isEditing === index ? (
+                    <button onClick={() => handleSave(index)}>Save</button>
+                  ) : (
+                    <button onClick={() => handleEdit(employee, index)}>Edit</button>
+                  )}
+                </td>
+                <td>
+                  {isEditing === index ? (
+                    <button onClick={handleCancel}>Cancel</button>
+                  ) : (
+                    <button onClick={() => handleDelete(employee.EmployeeNumber)}>Delete</button>
+                  )}
                 </td>
               </tr>
             ))}
