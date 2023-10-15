@@ -3,9 +3,7 @@
 .container {
   display: flex;
   justify-content: center;
-  align-items: center;
   height: 100vh;
-  width: 100vw;
 }
 
 .form {
@@ -44,16 +42,15 @@ button:hover {
   background-color: #0056b3;
 }
 
-.employee-table {
-  margin-top: 20px;
-}
+
 
 table {
-  width: 100%;
+  width: 90%;
   border-collapse: collapse;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
 }
 
 table th,
@@ -72,16 +69,21 @@ table th {
 /* Style for the plus icon */
 .add-button {
   position: fixed;
-  top: 20px; /* Adjust the top position as needed */
-  right: 20px; /* Adjust the right position as needed */
+  bottom: 40px; /* Adjust the top position as needed */
+  right: 30px; /* Adjust the right position as needed */
   background-color: #007bff;
   color: #fff;
   border: none;
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 50%;
-  font-size: 24px; /* Adjust the font size as needed */
+  height: 50px;
+  width: 50px;
+  font-size: 30px; /* Adjust the font size as needed */
   z-index: 1; /* Ensure it's above other elements */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Style for the modal */
@@ -122,3 +124,51 @@ table th {
   border-radius: 4px;
   margin-top: 10px; /* Adjust spacing as needed */
 }
+
+.profile_image
+{
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  
+}
+
+.center {
+  text-align: center;
+}
+
+.plus-icon:hover{
+  cursor: pointer;
+}
+.main_heading_container
+{
+  display: flex;
+  justify-content: center;
+}
+
+.main_heading
+{
+  font-weight: 500;
+  color: black;
+  opacity: 0.8;
+}
+
+.submitButton{
+  margin: 20px;
+  width: 80%;
+  border-radius: 20px;
+}
+
+.employeeInput{
+  width: 300px;
+  height: 25px;
+  border-radius: 20px;
+  margin: 5px;
+  border-width: 1px;
+  text-align: center;
+  padding: 5px;
+}
+
+
+
+
