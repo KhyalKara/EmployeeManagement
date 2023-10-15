@@ -123,9 +123,45 @@ app.put("/api/update", (req, res) => {
     );
 });
 
+app.get("/api/employeeHierarchy", (req, res) => {
+    const sqlHierarchy = `WITH RECURSIVE cte AS (
+        SELECT
+          employee_number,
+          first_name,
+          last_name,
+          manager_id
+        FROM EmployeeDatabase.Employee
+        WHERE manager_id IS NULL
+        UNION ALL
+        SELECT
+          e.employee_number,
+          e.first_name,
+          e.last_name,
+          e.manager_id
+        FROM EmployeeDatabase.Employee e
+        INNER JOIN cte ON e.manager_id = cte.employee_number
+      )
+      
+      
+      SELECT * from cte`;
+
+    db.query(sqlHierarchy, (err, result) => {
+        if (err) {
+            console.log(err);
+            console.log("SERVER ERROR HIEARCHY")
+            res.status(500).json({ error: "An error occurred while fetching the employee hierarchy." });
+        } else {
+            res.json(result);
+            console.log("HIERACRCHY SERVER");
+            console.log(result);
+        }
+    });
+});
 
 
 
-app.listen(3001, () => {
-    console.log('running on port 3001');
+
+
+app.listen(process.env.BACKEND_PORT, () => {
+    console.log(`running on port ${process.env.BACKEND_PORT}`);
 })
