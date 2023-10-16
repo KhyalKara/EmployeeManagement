@@ -223,36 +223,32 @@ function App() {
   const [searchText, setSearchText] = useState('');
 
   const renderHierarchy = (hierarchy, managerId = null) => {
+    const filteredHierarchy = filterHierarchy(hierarchy, searchText);
+
     return (
       <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
         style={{ width: "80%", textAlign: "center", backgroundColor: "#E5E4E2", borderRadius: "4px" }}
       >
-        {Object.keys(hierarchy).map(employeeNumber => {
-          const employee = employeeHierarchyData.find(e => e.employee_number === employeeNumber);
+        {Object.keys(filteredHierarchy).map((employeeNumber) => {
+          const employee = employeeHierarchyData.find((e) => e.employee_number === employeeNumber);
 
-          if (
-            employee.first_name.toLowerCase().includes(searchText.toLowerCase()) ||
-            employee.last_name.toLowerCase().includes(searchText.toLowerCase())
-          ) {
-            return (
-              <TreeItem
-                key={employeeNumber}
-                nodeId={employeeNumber}
-                label={`${employee.first_name} ${employee.last_name}`}
-                style={{ padding: "10px" }}
-              >
-                {renderHierarchy(hierarchy[employeeNumber], employeeNumber)}
-              </TreeItem>
-            );
-          } else {
-            return null;
-          }
+          return (
+            <TreeItem
+              key={employeeNumber}
+              nodeId={employeeNumber}
+              label={`${employee.first_name} ${employee.last_name} ${"(Employee# : " + employeeNumber + ")"}`}
+              style={{ padding: "10px" }}
+            >
+              {renderHierarchy(filteredHierarchy[employeeNumber], employeeNumber)}
+            </TreeItem>
+          );
         })}
-      </TreeView >
+      </TreeView>
     );
   };
+
 
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -290,6 +286,33 @@ function App() {
         console.error(error);
       });
   }, []);
+
+  const filterHierarchy = (hierarchy, searchText) => {
+    const filteredHierarchy = {};
+
+    for (const employeeNumber in hierarchy) {
+      const employee = employeeHierarchyData.find((e) => e.employee_number === employeeNumber);
+
+      if (
+        employee.first_name.toLowerCase().includes(searchText.toLowerCase()) ||
+        employee.last_name.toLowerCase().includes(searchText.toLowerCase())
+      ) {
+        // If the employee matches the search criteria, include them in the filtered hierarchy
+        filteredHierarchy[employeeNumber] = filterHierarchy(hierarchy[employeeNumber], searchText);
+      } else {
+        // If the employee doesn't match the search criteria, check their subordinates
+        const subordinates = filterHierarchy(hierarchy[employeeNumber], searchText);
+
+        if (Object.keys(subordinates).length > 0) {
+          // If there are matching subordinates, include the manager and their subordinates
+          filteredHierarchy[employeeNumber] = subordinates;
+        }
+      }
+    }
+
+    return filteredHierarchy;
+  };
+
 
   return (
     <div>
