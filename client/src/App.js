@@ -68,29 +68,34 @@ function App() {
     }));
   };
 
+  const fetchHierarchyData = () => {
+    Axios.get("http://localhost:3001/api/employeeHierarchy")
+      .then((response) => {
+        setEmployeeHierarchyData(response.data);
+        const hierarchy = buildEmployeeHierarchy(response.data);
+        setEmployeeHierarchy(hierarchy);
+      })
+      .catch((error) => {
+        console.error("ERROR HIERARCHY");
+        console.error(error);
+      });
+  };
+
   const handleSubmit = () => {
     Axios.post('http://localhost:3001/api/insert', {
       ...employeeData // Spread the employeeData object to send all fields
     })
       .then(response => {
-        // Handle the response if needed
-        // console.log(response);
-
-        // Check for server-side errors and display them
         if (response.data.error) {
-          // Display the error message to the user
-          // You can use state to manage and display the error message in your UI
           setError(response.data.error);
-
         } else {
-          // Clear any previous error messages
           setError(null);
-          // Close the modal or reset form, etc., on successful submission
           setIsModalOpen(false);
+          fetchData(); // Update the employee data table
+          fetchHierarchyData(); // Update the hierarchy data
         }
       })
       .catch(error => {
-        // Handle errors if the request fails
         console.error(error.response.data.error);
         setError(error.response.data.error);
         alert(error.response.data.error);
@@ -115,17 +120,42 @@ function App() {
       employeeSalary: editedEmployee.salary,
       employeeRole: editedEmployee.role,
       employeeEmail: editedEmployee.email,
-      employeeManager: editedReportingManager, // Include the edited reporting manager
+      employeeManager: editedReportingManager,
     })
       .then((response) => {
         // Handle the response if needed
         console.log(response);
         setIsEditing(false); // Disable editing mode
+
         // Update the local state with the edited employee data
         setLoadAllEmployeeData((prevData) => {
           const updatedData = [...prevData];
-          updatedData[index] = editedEmployee;
+          updatedData[index] = { ...editedEmployee, employee_manager: editedReportingManager };
           return updatedData;
+        });
+
+        // Fetch hierarchy data after editing
+        fetchHierarchyData();
+      })
+      .catch((error) => {
+        // Handle errors if the request fails
+        console.error(error);
+      });
+  };
+
+  const handleDelete = (employeeNumber) => {
+    Axios.delete(`http://localhost:3001/api/delete/${employeeNumber}`)
+      .then(() => {
+        // Remove the deleted employee from the hierarchy state
+
+        setLoadAllEmployeeData((prevData) =>
+          prevData.filter((employee) => employee.employee_number !== employeeNumber)
+        );
+
+        setEmployeeHierarchy((prevHierarchy) => {
+          const newHierarchy = { ...prevHierarchy };
+          delete newHierarchy[employeeNumber];
+          return newHierarchy;
         });
       })
       .catch((error) => {
@@ -134,12 +164,6 @@ function App() {
       });
   };
 
-
-  const handleDelete = (employeeNumber) => {
-    Axios.delete(`http://localhost:3001/api/delete/${employeeNumber}`, employeeNumber);
-    // Implement the delete functionality here
-
-  };
 
   const handleCancel = () => {
     setEditedEmployee({});
@@ -233,7 +257,7 @@ function App() {
       >
         {Object.keys(filteredHierarchy).map((employeeNumber) => {
           const employee = employeeHierarchyData.find((e) => e.employee_number === employeeNumber);
-          console.log(employee);
+          // console.log(employee);
 
           return (
             <TreeItem

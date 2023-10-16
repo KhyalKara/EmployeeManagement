@@ -126,7 +126,9 @@ app.delete("/api/delete/:employeeNumber", (req, res) => {
         if (err) {
             console.log(err);
         }
-
+        else {
+            res.json(result);
+        }
     });
 })
 
