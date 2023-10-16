@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-management
+spec:
+  selector:
+    matchLabels:
+      app: employee-management
+  template:
+    metadata:
+      labels:
+        app: employee-management
+    spec:
+      containers:
+      - name: employee-management-backend
+        image: registry.khyalkara.com/beta:latest
+        env:
+          - name: BACKEND_PORT
+            value: "3000"
+          - name: DB_HOST
+            value: "localhost"
+          - name: DB_USERNAME
+            value: "user"
+          - name: DB_PASSWORD
+            value: "password"
+          - name: DB_NAME
+            value: ""
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+      - name: employee-management-frontend
+        image: registry.khyalkara.com/alpha:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80

@@ -227,6 +227,7 @@ function App() {
       <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
+        style={{ width: "80%", textAlign: "center", backgroundColor: "#E5E4E2", borderRadius: "4px" }}
       >
         {Object.keys(hierarchy).map(employeeNumber => {
           const employee = employeeHierarchyData.find(e => e.employee_number === employeeNumber);
@@ -240,6 +241,7 @@ function App() {
                 key={employeeNumber}
                 nodeId={employeeNumber}
                 label={`${employee.first_name} ${employee.last_name}`}
+                style={{ padding: "10px" }}
               >
                 {renderHierarchy(hierarchy[employeeNumber], employeeNumber)}
               </TreeItem>
@@ -248,7 +250,7 @@ function App() {
             return null;
           }
         })}
-      </TreeView>
+      </TreeView >
     );
   };
 
@@ -668,6 +670,7 @@ function App() {
         <p>Use this to visualise the employee hiearchy. You can use the hierarchy to find, edit or delete employee data.</p>
         <img className="table_image" src={HiearchyImage} alt='AddEmployeeImage' />
 
+        <h3>Hierarchy Tree:</h3>
         <input
           type="text"
           placeholder="Search employees"
@@ -675,6 +678,7 @@ function App() {
           onChange={(e) => setSearchText(e.target.value)}
           className='search_employee'
         />
+
         <div className="hierarchy-tree">
           {renderHierarchy(employeeHierarchy)}
         </div>
