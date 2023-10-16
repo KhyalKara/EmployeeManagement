@@ -55,7 +55,7 @@
 }
 
 table {
-  width: 80%;
+  width: 50%;
   border-collapse: collapse;
   background-color: #fff;
   border-radius: 8px;
@@ -96,10 +96,14 @@ table th {
   transform: scale(1.05);
 }
 
+.editInput
+{
+  width: 80px;
+}
+
 .add-button {
-  position: absolute;
-  left:94%;
-  top:127%;
+  position: relative;
+  left: 37.5%;
   background-color: var(--main-colour);
   color: #fff;
   border: none;
@@ -114,6 +118,7 @@ table th {
   justify-content: center;
   align-items: center;
   animation: pulse 2s infinite;
+  margin: 15px;
 }
 
 .add-button:hover{
@@ -131,6 +136,36 @@ table th {
   width: 100%;
 }
 
+.table_filters{
+  display: flex;
+  width: 80%;
+  height: 50%;
+  justify-content: center;
+  align-items: center;
+ 
+}
+
+.filter_select
+{
+  margin-right: 10px;
+  height: 30px;
+  border: 0.5px solid grey;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.filter_value
+{
+  width: 700px;
+  height: 30px;
+  text-align: center;
+  border: 0.5px solid grey;
+  border-radius: 20px;
+  margin-right: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
 .main_heading_hierarchy
 {
   font-weight: 500;
@@ -138,8 +173,36 @@ table th {
   opacity: 0.8;
 }
 
+/* Style for the modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2; 
+}
 
-.form {
+.modal .form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 600px;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+
+.form 
+{
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -154,12 +217,36 @@ form label {
   font-weight: bold;
 }
 
-form input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
+.close-icon
+{
+  border: none;
+  width: 25px;
+  height: 25px;
+  color: grey;
+  position: absolute;
+  right: 31%;
+  top: 15%;
+}
+
+.close-icon:hover{
+  cursor: pointer;
+  transform: translate(1.05);
+  color: darkslategray;
+}
+
+.employeeInput{
+  width: 300px;
+  height: 50px;
   border-radius: 4px;
+  border: 0.1px solid grey;
+  margin: 5px;
+  text-align: center;
+  padding: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.employeeInput:hover{
+  transform: scale(1.05);
 }
 
 button {
@@ -173,6 +260,7 @@ button {
 
 button:hover {
   background-color: #0056b3;
+  transform: scale(1.05);
 }
 
 
@@ -183,33 +271,10 @@ button:hover {
 /* Style for the plus icon */
 
 
-/* Style for the modal */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2; /* Ensure it's above the plus icon */
-}
+
 
 /* Style for the modal form */
-.modal .form {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  width: 500px;
-  height: 500px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
+
 
 /* Style for the close button inside the modal */
 .modal .close-button {
@@ -239,23 +304,35 @@ button:hover {
 }
 
 
-
 .submitButton{
   margin: 20px;
   width: 80%;
   border-radius: 20px;
 }
 
-.employeeInput{
-  width: 300px;
-  height: 25px;
-  border-radius: 20px;
-  margin: 5px;
-  border-width: 1px;
-  text-align: center;
-  padding: 5px;
+.hierarchy-tree {
+ background-color: #d2d2d2;
+  border-radius: 5px;
+  padding: 10px;
+  overflow-y: scroll;
+  max-height: 300px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.search_employee
+{
+  width: 70%;
+  height: 30px;
+  text-align: center;
+  border: 0.5px solid grey;
+  border-radius: 20px;
+  margin-right: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
 
 /*CSS Animations*/
 @keyframes pulse {

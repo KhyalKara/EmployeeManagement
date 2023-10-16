@@ -5,11 +5,12 @@ import AddEmployeeImage from "./assets/images/AddEmployee.png";
 import HiearchyImage from "./assets/images/Hierarchy.png";
 import md5 from 'md5';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faClose } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPencil, faTrash, faClose, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import TreeView from '@mui/lab/TreeView';
 import TreeItem from '@mui/lab/TreeItem';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+
 
 
 function App() {
@@ -20,6 +21,23 @@ function App() {
       // console.log(response.data)
     })
   }, [])
+
+  const fetchData = () => {
+    Axios.get("http://localhost:3001/api/get", {
+      params: {
+        filterField,
+        filterValue,
+        sortField,
+        sortOrder,
+      },
+    })
+      .then((response) => {
+        setLoadAllEmployeeData(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   const [employeeData, setEmployeeData] = useState({
     employeeName: '',
@@ -37,6 +55,7 @@ function App() {
 
   const [isEditing, setIsEditing] = useState(false); // Track if a row is being edited
   const [editedEmployee, setEditedEmployee] = useState({}); // Track the edited employee data
+  const [editedReportingManager, setEditedReportingManager] = useState('');
 
 
   const [errorMessage, setError] = useState(null);
@@ -78,9 +97,16 @@ function App() {
       });
   };
 
+  const handleEdit = (employee, index) => {
+    // Initialize editedEmployee and editedReportingManager
+    setEditedEmployee({ ...employee });
+    setEditedReportingManager(employee.employeeManager);
+    setIsEditing(index);
+  };
+
+
 
   const handleSave = (index) => {
-    console.log(editedEmployee.EmployeeNumber);
     Axios.put('http://localhost:3001/api/update/', {
       employeeName: editedEmployee.first_name,
       employeeSurname: editedEmployee.last_name,
@@ -89,6 +115,7 @@ function App() {
       employeeSalary: editedEmployee.salary,
       employeeRole: editedEmployee.role,
       employeeEmail: editedEmployee.email,
+      employeeManager: editedReportingManager, // Include the edited reporting manager
     })
       .then((response) => {
         // Handle the response if needed
@@ -105,14 +132,6 @@ function App() {
         // Handle errors if the request fails
         console.error(error);
       });
-  };
-
-  const handleEdit = (employee, index) => {
-    // Initialize editedEmployee with the values from the selected employee
-    setEditedEmployee({ ...employee });
-
-    // Set edit mode for the specified index
-    setIsEditing(index);
   };
 
 
@@ -241,24 +260,55 @@ function App() {
   const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
   const currentEmployees = loadAllEmployeeData.slice(indexOfFirstEmployee, indexOfLastEmployee);
 
+
+  const [filterField, setFilterField] = useState('');
+  const [filterValue, setFilterValue] = useState('');
+  const [sortField, setSortField] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  const [columnNames, setColumnNames] = useState([]);
+  const [sortFields, setSortFields] = useState([]);
+
+  useEffect(() => {
+    // Fetch column names for filtering
+    Axios.get("http://localhost:3001/api/columns")
+      .then((response) => {
+        setColumnNames(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    // Fetch column names for sorting
+    Axios.get("http://localhost:3001/api/sort-fields")
+      .then((response) => {
+        setSortFields(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   return (
     <div>
       <div className="container">
+        {/* Filter */}
+
+
 
         {isModalOpen && (
           <div className="modal">
 
             <div className="form">
               {errorMessage && <div className="error-message">{errorMessage}</div>}
-              <h1 style={{ fontWeight: "400" }}>Enter employee details</h1>
               <FontAwesomeIcon
                 icon={faClose}
                 className="close-icon"
                 onClick={() => setIsModalOpen(false)}
-                style={{
-                  border: "none", width: "25", height: "25px", color: "grey", position: "absolute", right: "33%", top: "20%"
-                }}
               />
+
+              <h1 style={{ fontWeight: "400" }}>Enter employee details</h1>
+
 
               <label>Email:</label>
               <input
@@ -296,7 +346,7 @@ function App() {
                 name="employeeBirthDate"
                 value={employeeData.employeeBirthDate}
                 onChange={handleChange}
-                className='employeeInput'
+                style={{ width: "310px", height: "80px", textAlign: "center", border: "0.5px solid grey", boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)" }}
               />
 
               <label>Employee Number:</label>
@@ -306,7 +356,7 @@ function App() {
                 value={employeeData.employeeNumber}
                 onChange={handleChange}
                 className='employeeInput'
-                placeholder='123456'
+                placeholder='e.g. 123456'
               />
 
               <label>Salary:</label>
@@ -316,7 +366,7 @@ function App() {
                 value={employeeData.employeeSalary}
                 onChange={handleChange}
                 className='employeeInput'
-                placeholder='200000'
+                placeholder='e.g. 200000'
               />
 
               <label>Role:</label>
@@ -326,7 +376,7 @@ function App() {
                 value={employeeData.employeeRole}
                 onChange={handleChange}
                 className='employeeInput'
-                placeholder='Technical Consultant'
+                placeholder='e.g. Technical Consultant'
               />
 
               <label>Reporting Manager:</label>
@@ -349,7 +399,7 @@ function App() {
         <div className='main_heading_container'>
           <h1 className='main_heading'>Employee Management System</h1>
           <div className='sub_heading'>
-            <p>Use this table to edit or delete employees if needed. <br />You can add an employee using the "+" icon located in the bottom right corner of the screen</p>
+            <p>Use this table to edit or delete employees if needed. <br />You can add an employee using the "+" icon located at the top of the table</p>
           </div>
 
           <img className="table_image" src={AddEmployeeImage} alt='AddEmployeeImage' />
@@ -359,11 +409,58 @@ function App() {
 
 
         <div className="employee-table">
+
           {/* Plus icon to toggle the modal */}
           <button onClick={() => setIsModalOpen(true)} className="add-button">
             +
           </button>
+
+          <div className='table_filters'>
+
+            <input
+              type="text"
+              placeholder="Filter Value"
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+              className='filter_value'
+            />
+
+            {/* Sort */}
+
+            <select onChange={(e) => setFilterField(e.target.value)} className='filter_select'>
+              <option value="">Filter</option>
+              {columnNames.map((columnName) => (
+                <option key={columnName} value={columnName}>
+                  {columnName}
+                </option>
+              ))}
+            </select>
+            <select onChange={(e) => setSortField(e.target.value)} className='filter_select'>
+              <option value="">Sort By</option>
+              {sortFields.map((sortField) => (
+                <option key={sortField} value={sortField}>
+                  {sortField}
+                </option>
+              ))}
+            </select>
+
+
+
+
+
+            <select onChange={(e) => setSortOrder(e.target.value)} className='filter_select'>
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+
+
+
+            <button onClick={fetchData}>Search</button>
+          </div>
+
+
           <table>
+
 
             <thead className='table_head'>
               <tr>
@@ -378,9 +475,13 @@ function App() {
                 <th className="center">Reporting Manager</th>
                 <th className="center">Edit</th>
                 <th className="center">Delete</th>
+
+
               </tr>
             </thead>
+
             <tbody>
+
 
               {currentEmployees.map((employee, index) => (
                 <tr key={index}>
@@ -415,6 +516,7 @@ function App() {
                         name="employeeName"
                         value={editedEmployee.first_name}
                         onChange={(e) => setEditedEmployee({ ...editedEmployee, first_name: e.target.value })}
+                        className='editInput'
                       />
                     ) : (
                       employee.first_name
@@ -427,6 +529,7 @@ function App() {
                         name="employeeSurname"
                         value={editedEmployee.last_name}
                         onChange={(e) => setEditedEmployee({ ...editedEmployee, last_name: e.target.value })}
+                        className='editInput'
                       />
                     ) : (
                       employee.last_name
@@ -436,10 +539,11 @@ function App() {
                     {isEditing === index ? (
 
                       <input
-                        type="text"
+                        type="date"
                         name="employeeBirthDate"
                         value={formatDate(editedEmployee.birth_date)}
                         onChange={(e) => setEditedEmployee({ ...editedEmployee, birth_date: e.target.value })}
+                        className='editInput'
                       />
                     ) : (
                       formatDate(employee.birth_date)
@@ -456,6 +560,7 @@ function App() {
                         name="employeeSalary"
                         value={editedEmployee.salary}
                         onChange={(e) => setEditedEmployee({ ...editedEmployee, salary: e.target.value })}
+                        className='editInput'
                       />
                     ) : (
                       employee.salary
@@ -469,6 +574,7 @@ function App() {
                         name="employeeRole"
                         value={editedEmployee.role}
                         onChange={(e) => setEditedEmployee({ ...editedEmployee, role: e.target.value })}
+                        className='editInput'
                       />
                     ) : (
                       employee.role
@@ -482,6 +588,7 @@ function App() {
                         name="employeeEmail"
                         value={editedEmployee.email}
                         onChange={(e) => setEditedEmployee({ ...editedEmployee, email: e.target.value })}
+                        className='editInput'
                       />
                     ) : (
                       employee.email
@@ -489,25 +596,43 @@ function App() {
                   </td>
 
                   <td className="center">
-                    {employee.manager_first_name && employee.manager_last_name ? `${employee.manager_first_name} ${employee.manager_last_name}` : "None"}
-                    <br />
-                    {employee.manager_id ? "(" + employee.manager_id + ")" : ""}
-
+                    {isEditing === index ? (
+                      <input
+                        type="text"
+                        name="employeeManager"
+                        value={editedReportingManager}
+                        onChange={(e) => setEditedReportingManager(e.target.value)}
+                        className='editInput'
+                        placeholder='Manager #'
+                      />
+                    ) : (
+                      employee.manager_first_name && employee.manager_last_name
+                        ? `${employee.manager_first_name} ${employee.manager_last_name}`
+                        : "None"
+                    )}
                   </td>
 
 
                   <td className="center">
                     {isEditing === index ? (
-                      <button onClick={() => handleSave(index)}>Save</button>
+                      <button onClick={() => handleSave(index)} style={{ background: "none" }}>
+                        <FontAwesomeIcon icon={faCheck} style={{ color: "green" }} />
+                      </button>
                     ) : (
-                      <button onClick={() => handleEdit(employee, index)}>Edit</button>
+                      <button onClick={() => handleEdit(employee, index)} style={{ background: "none" }}>
+                        <FontAwesomeIcon icon={faPencil} style={{ color: "#007bff" }} />
+                      </button>
                     )}
                   </td>
                   <td className="center">
                     {isEditing === index ? (
-                      <button onClick={handleCancel}>Cancel</button>
+                      <button onClick={handleCancel} style={{ background: "none" }}>
+                        <FontAwesomeIcon icon={faTimes} style={{ color: "red" }} />
+                      </button>
                     ) : (
-                      <button onClick={() => handleDelete(employee.employee_number)}>Delete</button>
+                      <button onClick={() => handleDelete(employee.employee_number)} style={{ background: "none" }}>
+                        <FontAwesomeIcon icon={faTrash} style={{ color: "#e32f45" }} />
+                      </button>
                     )}
                   </td>
                 </tr>
@@ -548,8 +673,11 @@ function App() {
           placeholder="Search employees"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
+          className='search_employee'
         />
-        {renderHierarchy(employeeHierarchy)}
+        <div className="hierarchy-tree">
+          {renderHierarchy(employeeHierarchy)}
+        </div>
       </div>
 
 

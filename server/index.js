@@ -62,17 +62,60 @@ app.post("/api/insert", (req, res) => {
 
 
 app.get("/api/get", (req, res) => {
-    const sqlSelect = `
-    SELECT e.*, m.first_name AS manager_first_name, m.last_name AS manager_last_name
-    FROM Employee e
-    LEFT JOIN Employee m ON e.manager_id = m.employee_number;
-`;
+    const { filterField, filterValue, sortField, sortOrder } = req.query;
+
+    let sqlSelect = `
+      SELECT e.*, m.first_name AS manager_first_name, m.last_name AS manager_last_name
+      FROM Employee e
+      LEFT JOIN Employee m ON e.manager_id = m.employee_number
+    `;
+
+    if (filterField && filterValue) {
+        // Specify the table name for the filterField to remove ambiguity
+        sqlSelect += ` WHERE e.${filterField} LIKE '%${filterValue}%'`;
+    }
+
+    if (sortField && sortOrder) {
+        // Specify the table name for the sortField to remove ambiguity
+        sqlSelect += ` ORDER BY e.${sortField} ${sortOrder}`;
+    }
 
     db.query(sqlSelect, (err, result) => {
-        res.send(result)
-        console.log(result);
-    })
-})
+        if (err) {
+            console.log(err);
+            res.status(500).json({ error: "An error occurred while fetching employee data." });
+        } else {
+            res.json(result);
+        }
+    });
+});
+
+app.get("/api/columns", (req, res) => {
+    const sqlColumns = "SHOW COLUMNS FROM Employee";
+    db.query(sqlColumns, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500).json({ error: "An error occurred while fetching column names." });
+        } else {
+            const columnNames = result.map(row => row.Field);
+            res.json(columnNames);
+        }
+    });
+});
+
+app.get("/api/sort-fields", (req, res) => {
+    const sqlColumns = "SHOW COLUMNS FROM Employee";
+    db.query(sqlColumns, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500).json({ error: "An error occurred while fetching column names for sorting." });
+        } else {
+            const columnNames = result.map(row => row.Field);
+            res.json(columnNames);
+        }
+    });
+});
+
 
 app.delete("/api/delete/:employeeNumber", (req, res) => {
     const employeeID = req.params.employeeNumber;
@@ -96,10 +139,13 @@ app.put("/api/update", (req, res) => {
         employeeSalary,
         employeeRole,
         employeeEmail,
+        employeeManager
     } = req.body;
 
+    const formattedBirthDate = new Date(employeeBirthDate).toISOString().split('T')[0];
+
     const sqlUpdate = `
-          UPDATE Employee SET first_name = ?, last_name = ?, birth_date = ?, salary = ?, role = ?, email= ? WHERE employee_number = ?;
+          UPDATE Employee SET first_name = ?, last_name = ?, birth_date = ?, salary = ?, role = ?, email= ?, manager_id = ? WHERE employee_number = ?;
       `;
 
     db.query(
@@ -107,11 +153,13 @@ app.put("/api/update", (req, res) => {
         [
             employeeName,
             employeeSurname,
-            employeeBirthDate,
+            formattedBirthDate,
             employeeSalary,
             employeeRole,
             employeeEmail,
+            employeeManager,
             employeeNumber
+
         ],
         (err, result) => {
             if (err) {
