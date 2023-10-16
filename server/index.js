@@ -177,6 +177,10 @@ app.get("/api/employeeHierarchy", (req, res) => {
           employee_number,
           first_name,
           last_name,
+          birth_date,
+          salary,
+          role,
+          email,
           manager_id
         FROM EmployeeDatabase.Employee
         WHERE manager_id IS NULL
@@ -185,6 +189,10 @@ app.get("/api/employeeHierarchy", (req, res) => {
           e.employee_number,
           e.first_name,
           e.last_name,
+          e.birth_date,
+          e.salary,
+          e.role,
+          e.email,
           e.manager_id
         FROM EmployeeDatabase.Employee e
         INNER JOIN cte ON e.manager_id = cte.employee_number

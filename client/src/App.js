@@ -233,14 +233,28 @@ function App() {
       >
         {Object.keys(filteredHierarchy).map((employeeNumber) => {
           const employee = employeeHierarchyData.find((e) => e.employee_number === employeeNumber);
+          console.log(employee);
 
           return (
             <TreeItem
               key={employeeNumber}
               nodeId={employeeNumber}
-              label={`${employee.first_name} ${employee.last_name} ${"(Employee# : " + employeeNumber + ")"}`}
+              label={`${employee.first_name} ${employee.last_name} `}
               style={{ padding: "10px" }}
             >
+              {/* Display additional information */}
+              <div>
+                <p><strong>Surname:</strong> {employee.last_name}</p>
+                <p><strong>Role:</strong> {employee.role}</p>
+                <p><strong>Salary:</strong> {employee.salary}</p>
+                <p><strong>Email:</strong> {employee.email}</p>
+                <p><strong>Birth Date:</strong> {formatDate(employee.birth_date)}</p>
+              </div>
+
+              <button onClick={() => handleDelete(employee.employee_number)} style={{ background: "none" }}>
+                <FontAwesomeIcon icon={faTrash} style={{ color: "#e32f45" }} />
+              </button>
+
               {renderHierarchy(filteredHierarchy[employeeNumber], employeeNumber)}
             </TreeItem>
           );
@@ -312,6 +326,8 @@ function App() {
 
     return filteredHierarchy;
   };
+
+
 
 
   return (
@@ -430,6 +446,8 @@ function App() {
           <img className="table_image" src={AddEmployeeImage} alt='AddEmployeeImage' />
 
         </div>
+
+
 
 
 

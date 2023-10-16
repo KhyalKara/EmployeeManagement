@@ -311,7 +311,6 @@ button:hover {
 }
 
 .hierarchy-tree {
-
   border-radius: 5px;
   padding: 10px;
   overflow-y: scroll;
@@ -320,6 +319,7 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 50px;
 }
 
 .search_employee
