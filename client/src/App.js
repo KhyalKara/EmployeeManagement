@@ -11,8 +11,6 @@ import TreeItem from '@mui/lab/TreeItem';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-
-
 function App() {
 
   useEffect(() => {
@@ -81,25 +79,84 @@ function App() {
       });
   };
 
+  const resetEmployeeData = () => {
+    setEmployeeData({
+      employeeName: '',
+      employeeSurname: '',
+      employeeBirthDate: '',
+      employeeNumber: '',
+      employeeSalary: '',
+      employeeRole: '',
+      employeeEmail: '',
+      employeeManager: null,
+    });
+  };
+
+
   const handleSubmit = () => {
-    Axios.post('http://localhost:3001/api/insert', {
-      ...employeeData // Spread the employeeData object to send all fields
-    })
-      .then(response => {
-        if (response.data.error) {
-          setError(response.data.error);
-        } else {
-          setError(null);
-          setIsModalOpen(false);
-          fetchData(); // Update the employee data table
-          fetchHierarchyData(); // Update the hierarchy data
-        }
+    if (isNameValid && isEmailValid && isDateValid && isValidSurname && isValidEmployeeNumber && isValidSalary && isValidRole && isValidManager) {
+      Axios.post('http://localhost:3001/api/insert', {
+        ...employeeData // Spread the employeeData object to send all fields
       })
-      .catch(error => {
-        console.error(error.response.data.error);
-        setError(error.response.data.error);
-        alert(error.response.data.error);
-      });
+        .then(response => {
+          if (response.data.error) {
+            setError(response.data.error);
+          } else {
+            setError(null);
+            setIsModalOpen(false);
+            fetchData(); // Update the employee data table
+            fetchHierarchyData(); // Update the hierarchy data
+            resetEmployeeData(); // Reset the form inputs
+          }
+        })
+        .catch(error => {
+          console.error(error.response.data.error);
+          setError(error.response.data.error);
+          alert(error.response.data.error);
+        });
+    }
+    else {
+      // Display an error message or handle invalid fields appropriately
+      const errorMessages = [];
+
+      // Check individual fields and add custom error messages
+      if (!isNameValid) {
+        errorMessages.push('Invalid name. Name should contain only alphabetical characters and be at least one character long.');
+      }
+
+      if (!isEmailValid) {
+        errorMessages.push('Invalid email. Please enter a valid email address.');
+      }
+
+      if (!isDateValid) {
+        errorMessages.push('Invalid birth date. Please select a valid date.');
+      }
+
+      if (!isValidSurname) {
+        errorMessages.push('Invalid surname. Surname should contain only alphabetical characters and be at least one character long.');
+      }
+
+      if (!isValidEmployeeNumber) {
+        errorMessages.push('Invalid employee number. Employee number should be a positive integer.');
+      }
+
+      if (!isValidSalary) {
+        errorMessages.push('Invalid salary. Salary should be a positive number (integer or float).');
+      }
+
+      if (!isValidRole) {
+        errorMessages.push('Invalid role. Role should contain only alphabetical characters and be at least one character long.');
+      }
+
+      if (!isValidManager) {
+        errorMessages.push('Invalid reporting manager. Reporting manager should be an empty string or a positive integer.');
+      }
+
+      // Check if there are any error messages
+      if (errorMessages.length > 0) {
+        setError(errorMessages.join('\n'));
+      }
+    }
   };
 
   const handleEdit = (employee, index) => {
@@ -124,7 +181,7 @@ function App() {
     })
       .then((response) => {
         // Handle the response if needed
-        console.log(response);
+        // console.log(response);
         setIsEditing(false); // Disable editing mode
 
         // Update the local state with the edited employee data
@@ -147,19 +204,26 @@ function App() {
     Axios.delete(`http://localhost:3001/api/delete/${employeeNumber}`)
       .then(() => {
         // Remove the deleted employee from the hierarchy state
+        setEmployeeHierarchy((prevHierarchy) => {
+          // Recursively remove the employee from the hierarchy
+          const removeEmployee = (hierarchy) => {
+            for (const employeeId in hierarchy) {
+              if (employeeId === employeeNumber) {
+                delete hierarchy[employeeId];
+              } else {
+                removeEmployee(hierarchy[employeeId]);
+              }
+            }
+          }
+          removeEmployee({ ...prevHierarchy });
+          return prevHierarchy;
+        });
 
         setLoadAllEmployeeData((prevData) =>
           prevData.filter((employee) => employee.employee_number !== employeeNumber)
         );
-
-        setEmployeeHierarchy((prevHierarchy) => {
-          const newHierarchy = { ...prevHierarchy };
-          delete newHierarchy[employeeNumber];
-          return newHierarchy;
-        });
       })
       .catch((error) => {
-        // Handle errors if the request fails
         console.error(error);
       });
   };
@@ -211,7 +275,7 @@ function App() {
         setEmployeeHierarchy(hierarchy);
       })
       .catch((error) => {
-        console.log("ERROR HIERARCHY");
+        // console.log("ERROR HIERARCHY");
         console.error(error);
       });
   }, []);
@@ -266,6 +330,8 @@ function App() {
               label={`${employee.first_name} ${employee.last_name} `}
               style={{ padding: "10px" }}
             >
+
+
               {/* Display additional information */}
               <div>
                 <p><strong>Surname:</strong> {employee.last_name}</p>
@@ -304,6 +370,67 @@ function App() {
 
   const [columnNames, setColumnNames] = useState([]);
   const [sortFields, setSortFields] = useState([]);
+
+  const validateName = (name) => {
+    const namePattern = /^[A-Za-z]+$/; // This pattern allows only alphabetical characters
+
+    return name.length > 0 && namePattern.test(name);
+  };
+
+  const validateSurname = (name) => {
+    const namePattern = /^[A-Za-z]+$/; // This pattern allows only alphabetical characters
+
+    return name.length > 0 && namePattern.test(name);
+  };
+
+  const validateRole = (name) => {
+    const namePattern = /^[A-Za-z\s]+$/;
+
+    return name.length > 0 && namePattern.test(name);
+  };
+
+  const validateEmail = (email) => {
+    // You can use a regular expression to validate the email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateDate = (date) => {
+    // You can add more specific date validation logic here
+    return date.trim() !== '';
+  };
+
+  const validateEmployeeNumber = (employeeNumber) => {
+    const employeeNumberPattern = /^\d+$/; // This pattern matches one or more digits
+
+    return employeeNumberPattern.test(employeeNumber);
+  };
+
+  const validateSalary = (salary) => {
+    const salaryPattern = /^\d+(\.\d+)?$/; // This pattern matches integers and floats
+
+    return salaryPattern.test(salary) && parseFloat(salary) > 0;
+  };
+
+  const validateManagerNumber = (managerNumber) => {
+    // Check if the managerNumber is an empty string or a positive integer
+    return managerNumber === null || (/^\d+$/.test(managerNumber) && parseInt(managerNumber) > 0);
+  };
+
+
+
+
+
+
+
+  const isNameValid = validateName(employeeData.employeeName);
+  const isEmailValid = validateEmail(employeeData.employeeEmail);
+  const isDateValid = validateDate(employeeData.employeeBirthDate);
+  const isValidSurname = validateSurname(employeeData.employeeSurname);
+  const isValidEmployeeNumber = validateEmployeeNumber(employeeData.employeeNumber);
+  const isValidSalary = validateSalary(employeeData.employeeSalary);
+  const isValidRole = validateRole(employeeData.employeeRole);
+  const isValidManager = validateManagerNumber(employeeData.employeeManager);;
 
   useEffect(() => {
     // Fetch column names for filtering
@@ -365,7 +492,7 @@ function App() {
           <div className="modal">
 
             <div className="form">
-              {errorMessage && <div className="error-message">{errorMessage}</div>}
+
               <FontAwesomeIcon
                 icon={faClose}
                 className="close-icon"
@@ -384,6 +511,7 @@ function App() {
                 className='employeeInput'
                 placeholder='example@email.com'
               />
+
 
               <label>Name:</label>
               <input
@@ -453,6 +581,8 @@ function App() {
                 className='employeeInput'
                 placeholder='e.g. 75648'
               />
+
+              {errorMessage && <div className="error-message">{errorMessage}</div>}
 
               <button className='submitButton' onClick={handleSubmit}>Submit</button>
 
@@ -732,6 +862,7 @@ function App() {
 
       <div className="employee-hierarchy">
         <h1 className='main_heading_hierarchy'>Employee Hierarchy</h1>
+
         <p>Use this to visualise the employee hiearchy. You can use the hierarchy to find, edit or delete employee data.</p>
         <img className="table_image" src={HiearchyImage} alt='AddEmployeeImage' />
 

@@ -193,7 +193,7 @@ table th {
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   width: 600px;
-  height: 600px;
+  height: 750px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -225,7 +225,16 @@ form label {
   color: grey;
   position: absolute;
   right: 31%;
-  top: 15%;
+  top: 5%;
+}
+
+.error-message
+{
+  color: red;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .close-icon:hover{

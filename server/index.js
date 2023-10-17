@@ -44,6 +44,10 @@ app.post("/api/insert", (req, res) => {
         employeeManager
     } = req.body;
 
+    if (!employeeName || !employeeSurname || !employeeBirthDate || !employeeNumber || !employeeSalary || !employeeRole) {
+        return res.status(400).json({ error: "All required fields must be provided." });
+    }
+
     const formattedBirthDate = new Date(employeeBirthDate).toISOString().split('T')[0];
     console.log(formattedBirthDate);
 
@@ -120,6 +124,10 @@ app.get("/api/sort-fields", (req, res) => {
 app.delete("/api/delete/:employeeNumber", (req, res) => {
     const employeeID = req.params.employeeNumber;
 
+    if (!employeeID) {
+        return res.status(400).json({ error: "No employee id." });
+    }
+
     const sqlDelete = "DELETE FROM Employee WHERE employee_number = ?";
 
     db.query(sqlDelete, employeeID, (err, result) => {
@@ -144,7 +152,12 @@ app.put("/api/update", (req, res) => {
         employeeManager
     } = req.body;
 
+    if (!employeeName || !employeeSurname || !employeeBirthDate || !employeeNumber || !employeeSalary || !employeeRole) {
+        return res.status(400).json({ error: "All required fields must be provided." });
+    }
+
     const formattedBirthDate = new Date(employeeBirthDate).toISOString().split('T')[0];
+
 
     const sqlUpdate = `
           UPDATE Employee SET first_name = ?, last_name = ?, birth_date = ?, salary = ?, role = ?, email= ?, manager_id = ? WHERE employee_number = ?;
@@ -206,11 +219,9 @@ app.get("/api/employeeHierarchy", (req, res) => {
     db.query(sqlHierarchy, (err, result) => {
         if (err) {
             console.log(err);
-            console.log("SERVER ERROR HIEARCHY")
             res.status(500).json({ error: "An error occurred while fetching the employee hierarchy." });
         } else {
             res.json(result);
-            console.log("HIERACRCHY SERVER");
             console.log(result);
         }
     });
