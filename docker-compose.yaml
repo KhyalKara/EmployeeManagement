@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  frontend:
+    build:
+      context: client/.
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    container_name: em-frontend
+  database:
+    image: mysql:8.1.0
+    restart: never
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+  backend:
+    build:
+      context: server/.
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3001
+    environment:
+      - name=value
+
+
+      # - name: BACKEND_PORT
+      #       value: "3000"
+      #     - name: DB_HOST
+      #       value: "my-mariadb"
+      #     - name: DB_USERNAME
+      #       value: "root"
+      #     - name: DB_PASSWORD
+      #       value: "NoFogAnAax"
+      #     - name: DB_NAME
+      #       value: "my_database"
+      #     - name: PRODUCTION
+      #       value: "True"
+  

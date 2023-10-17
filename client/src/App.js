@@ -14,14 +14,14 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 function App() {
 
   useEffect(() => {
-    Axios.get("http://localhost:3001/api/get").then((response) => {
+    Axios.get("/api/get").then((response) => {
       setLoadAllEmployeeData(response.data);
       // console.log(response.data)
     })
   }, [])
 
   const fetchData = () => {
-    Axios.get("http://localhost:3001/api/get", {
+    Axios.get("/api/get", {
       params: {
         filterField,
         filterValue,
@@ -67,7 +67,7 @@ function App() {
   };
 
   const fetchHierarchyData = () => {
-    Axios.get("http://localhost:3001/api/employeeHierarchy")
+    Axios.get("/api/employeeHierarchy")
       .then((response) => {
         setEmployeeHierarchyData(response.data);
         const hierarchy = buildEmployeeHierarchy(response.data);
@@ -95,7 +95,7 @@ function App() {
 
   const handleSubmit = () => {
     if (isNameValid && isEmailValid && isDateValid && isValidSurname && isValidEmployeeNumber && isValidSalary && isValidRole && isValidManager) {
-      Axios.post('http://localhost:3001/api/insert', {
+      Axios.post('/api/insert', {
         ...employeeData // Spread the employeeData object to send all fields
       })
         .then(response => {
@@ -169,7 +169,7 @@ function App() {
 
 
   const handleSave = (index) => {
-    Axios.put('http://localhost:3001/api/update/', {
+    Axios.put('/api/update/', {
       employeeName: editedEmployee.first_name,
       employeeSurname: editedEmployee.last_name,
       employeeBirthDate: editedEmployee.birth_date,
@@ -201,7 +201,7 @@ function App() {
   };
 
   const handleDelete = (employeeNumber) => {
-    Axios.delete(`http://localhost:3001/api/delete/${employeeNumber}`)
+    Axios.delete(`/api/delete/${employeeNumber}`)
       .then(() => {
         // Remove the deleted employee from the hierarchy state
         setEmployeeHierarchy((prevHierarchy) => {
@@ -268,7 +268,7 @@ function App() {
   const [employeeHierarchy, setEmployeeHierarchy] = useState({});
 
   useEffect(() => {
-    Axios.get("http://localhost:3001/api/employeeHierarchy")
+    Axios.get("/api/employeeHierarchy")
       .then((response) => {
         setEmployeeHierarchyData(response.data);
         const hierarchy = buildEmployeeHierarchy(response.data);
@@ -434,7 +434,7 @@ function App() {
 
   useEffect(() => {
     // Fetch column names for filtering
-    Axios.get("http://localhost:3001/api/columns")
+    Axios.get("/api/columns")
       .then((response) => {
         setColumnNames(response.data);
       })
@@ -443,7 +443,7 @@ function App() {
       });
 
     // Fetch column names for sorting
-    Axios.get("http://localhost:3001/api/sort-fields")
+    Axios.get("/api/sort-fields")
       .then((response) => {
         setSortFields(response.data);
       })

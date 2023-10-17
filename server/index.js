@@ -4,8 +4,12 @@ const mysql = require('mysql')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 
+if (process.env.PRODUCTION != "True"){
+    require('dotenv').config()
+}
 
-require('dotenv').config()
+
+console.log(process.env);
 
 const db = mysql.createPool(
     {
@@ -15,6 +19,8 @@ const db = mysql.createPool(
         database: process.env.DB_NAME,
     }
 )
+
+console.log(db)
 
 
 
@@ -197,7 +203,7 @@ app.get("/api/employeeHierarchy", (req, res) => {
           role,
           email,
           manager_id
-        FROM EmployeeDatabase.Employee
+        FROM ${process.env.DB_NAME}.Employee
         WHERE manager_id IS NULL
         UNION ALL
         SELECT
@@ -209,7 +215,7 @@ app.get("/api/employeeHierarchy", (req, res) => {
           e.role,
           e.email,
           e.manager_id
-        FROM EmployeeDatabase.Employee e
+        FROM ${process.env.DB_NAME}.Employee e
         INNER JOIN cte ON e.manager_id = cte.employee_number
       )
       

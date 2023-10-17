@@ -9,4 +9,4 @@ FROM nginx:1.25.2
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 COPY --from=builder /app/build .
-ENTRYPOINT ["nginx", "-g", "deamon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

@@ -1,38 +1,56 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: employee-management
+  name: em-backend-deployment
 spec:
   selector:
     matchLabels:
-      app: employee-management
+      app: em-backend-deployment
   template:
     metadata:
       labels:
-        app: employee-management
+        app: em-backend-deployment
     spec:
       containers:
       - name: employee-management-backend
-        image: registry.khyalkara.com/beta:latest
+        image: registry.khyalkara.com/beta:0.0.11
         env:
           - name: BACKEND_PORT
             value: "3000"
           - name: DB_HOST
-            value: "localhost"
+            value: "my-mariadb"
           - name: DB_USERNAME
-            value: "user"
+            value: "root"
           - name: DB_PASSWORD
-            value: "password"
+            value: "NoFogAnAax"
           - name: DB_NAME
-            value: ""
+            value: "my_database"
+          - name: PRODUCTION
+            value: "True"
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
         ports:
         - containerPort: 3000
+      
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: em-frontent-deployment
+spec:
+  selector:
+    matchLabels:
+      app: em-frontent-deployment
+  template:
+    metadata:
+      labels:
+        app: em-frontent-deployment
+    spec:
+      containers:
       - name: employee-management-frontend
-        image: registry.khyalkara.com/alpha:latest
+        image: registry.khyalkara.com/alpha:0.0.4
         resources:
           limits:
             memory: "128Mi"
